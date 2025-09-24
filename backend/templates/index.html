@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Voucher OCR Dashboard</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:18px}
+    .card{border:1px solid #ddd;padding:12px;border-radius:6px;margin-bottom:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border:1px solid #eee;text-align:left}
+    th{background:#f7f7f7}
+    pre{white-space:pre-wrap;word-wrap:break-word}
+    .mono{font-family:ui-monospace,Menlo,monospace}
+    .small{font-size:13px;color:#666}
+    .btn{padding:8px 12px;border-radius:6px;background:#007bff;color:white;border:none;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h1>Voucher OCR Dashboard</h1>
+  {% if error %}
+    <div id="error-message" style="color:#b00;background:#fee;padding:10px;border-radius:6px;margin-bottom:12px;font-weight:bold;">{{ error }}</div>
+  {% endif %}
+
+  <div class="card">
+    <h3>Upload voucher image</h3>
+    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" target="_self">
+      <input type="file" name="file" accept="image/*" required>
+      <button class="btn" type="submit">Upload & Process</button>
+    </form>
+    <script>
+      document.getElementById('uploadForm').onsubmit = function(e) {
+        e.preventDefault();
+        var form = e.target;
+        var formData = new FormData(form);
+        var fileInput = form.querySelector('input[type="file"]');
+        var file = fileInput.files[0];
+        if (!file) return;
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', form.action, true);
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            // After successful upload, open validation page in new tab
+            window.open('/validate/' + encodeURIComponent(file.name), '_blank');
+          } else {
+            alert('Upload failed.');
+          }
+        };
+        xhr.send(formData);
+      };
+    </script>
+    <p class="small">Uploaded file is processed by Tesseract OCR and parsed; results stored in local SQLite DB.</p>
+  </div>
+
+  <div class="card">
+    <h3>Stored vouchers</h3>
+    {% if vouchers %}
+      <table>
+        <thead>
+          <tr><th>Voucher No</th><th>Date</th><th>Supplier</th><th>Created</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for v in vouchers %}
+            <tr>
+              <td class="mono">{{ v.voucher_no or '-' }}</td>
+              <td>{{ v.voucher_date or '-' }}</td>
+              <td>{{ v.supplier_code or '-' }}</td>
+              <td>{{ v.created_at }}</td>
+              <td><a href="/voucher/{{ v.id }}" target="_blank">View JSON</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No vouchers yet — upload one above.</p>
+    {% endif %}
+    <form action="/confirm_delete_all" method="get" style="margin-top:18px">
+      <button class="btn" type="submit" style="background:#dc3545">Delete All Data</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Notes</h3>
+    <ol>
+      <li class="small">If OCR results look poor, confirm that Tesseract binary is installed and in PATH.</li>
+      <li class="small">To improve parsing, edit <code>backend/parser.py</code> — add more heuristics or use cloud OCR later.</li>
+    </ol>
+  </div>
+</body>
+</html>

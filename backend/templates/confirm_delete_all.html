@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Confirm Delete All Data</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:18px}
+    .card{border:1px solid #ddd;padding:24px;border-radius:6px;margin-bottom:12px}
+    .btn{padding:8px 12px;border-radius:6px;background:#dc3545;color:white;border:none;cursor:pointer;margin-right:8px}
+    .btn-cancel{background:#888;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Are you sure you want to delete ALL data and uploaded images?</h2>
+    <form action="/delete_all" method="post" style="display:inline">
+      <button class="btn" type="submit">Yes, Delete Everything</button>
+    </form>
+    <a href="/" class="btn btn-cancel">Cancel</a>
+  </div>
+</body>
+</html>

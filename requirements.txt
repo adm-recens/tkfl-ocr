@@ -1,0 +1,6 @@
+Flask>=2.0
+pillow
+pytesseract
+opencv-python
+sqlite3-binary
+pandas
